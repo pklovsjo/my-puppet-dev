@@ -1,0 +1,33 @@
+#
+# This file is maintained by Puppet
+#
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+[libdefaults]
+ default_realm = <%= @default_realm %>
+ dns_lookup_realm = true
+ dns_lookup_kdc = true
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+[realms]
+ <%= @default_realm %> = {
+  <% @servers.each do |server| -%>
+    kdc = <%= server['fqdn'] %>
+  <% end -%>
+ }
+[domain_realm]
+ .<%= @default_realm %> = <%= @default_realm %>
+ <%= @default_realm %> = <%= @default_realm %>
+ .<%= @sdomain %> = <%= @default_realm %>
+ <%= @sdomain %> = <%= @default_realm %>
+[appdefaults]
+ pam = {
+   debug = false
+   ticket_lifetime = 36000
+   renew_lifetime = 36000
+   forwardable = true
+   krb4_convert = false
+ }

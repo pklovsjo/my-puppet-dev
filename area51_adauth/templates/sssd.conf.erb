@@ -1,0 +1,76 @@
+#
+# This file is maintained by Puppet
+#
+[sssd]
+domains = LDAP
+services = nss, pam
+config_file_version = 2
+sbus_timeout = 20
+
+[nss]
+filter_groups = root
+filter_users = root
+
+[pam]
+offline_credentials_expiration = 0
+
+[domain/LDAP]
+description = AD Configuration
+debug_level = 4
+enumerate = false
+min_id = 1
+
+# Specific Providers for task
+id_provider = ldap
+access_provider = ldap
+auth_provider = krb5
+chpass_provider = krb5
+
+# LDAP Basic Configuration
+ldap_uri = ldaps://<%= @ldapsrv1 %>
+
+# User that can read from AD, any normal user should work.  Update as necessary
+ldap_default_bind_dn = CN=AuthAD_Linux,CN=Users,DC=area51,DC=local
+ldap_default_authtok_type = password
+ldap_default_authtok = P@ssw0rd2015
+
+# Restrict access to a certain group, update or comment this out
+ldap_access_filter = memberOf=CN=Unix_Users,CN=Users,DC=area51,DC=local
+
+# SSL Config
+ldap_tls_cacert = /etc/pki/tls/certs/ca-bundle.crt
+ldap_tls_cacertdir = /etc/pki/tls/certs
+ldap_tls_reqcert = never
+ldap_tls_checkpeer = no
+ldap_ssl = start_tls
+ldap_ssl = on
+ldap_search_base = dc=area51,dc=local
+
+# Specific ldap option
+ldap_referrals = FALSE
+ldap_access_order = filter, expire
+ldap_account_expire_policy = ad
+ldap_pwd_policy = none
+
+#User Mapping
+ldap_schema = rfc2307bis
+ldap_user_principal = userPrincipalName
+ldap_user_fullname = displayName
+ldap_user_name = sAMAccountName
+ldap_user_object_class = user
+ldap_user_home_directory = unixHomeDirectory
+ldap_user_shell = loginShell
+ldap_user_principal = userPrincipalName
+ldap_group_object_class = group
+ldap_force_upper_case_realm = True
+ldap_user_member_of = msSFU30PosixMemberOf
+ldap_group_member = msSFU30PosixMember
+
+# Kerberos
+krb5_server = <%= @ldapsrv1 %>
+krb5_realm = <%= @default_realm %>
+krb5_changepw_principle = kadmin/changepw
+krb5_ccachedir = /tmp
+krb5_ccname_template = FILE:%d/krb5cc_%U_XXXXXX
+krb5_auth_timeout = 15
+cache_credentials = True
